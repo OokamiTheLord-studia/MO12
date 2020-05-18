@@ -10,9 +10,10 @@
 
 using namespace std;
 
-
+//Funkcja interpolowana
 const std::function<double(double)> interpolated_function = [](double x) {return 1 / (1 + 10 * pow(x, 6)); };
 
+//Funktor wyliczający wartości funkcji interpolujących
 class interpolating_function
 {
 private:
@@ -39,7 +40,7 @@ public:
 };
 
 
-//std::function<double(double)> get_interpolating_function(const std::vector<std::pair<double, double>>* nodes)
+//funkcja wyznaczająca wielomian interpolacyjny używając bazy Newtona
 interpolating_function get_interpolating_function(const std::vector<std::pair<double, double>>* nodes)
 {
     vector<double> arguments;
@@ -47,6 +48,7 @@ interpolating_function get_interpolating_function(const std::vector<std::pair<do
     arguments.reserve(n);
     arguments.push_back((*nodes)[0].second);
 
+    //wyznaczanie współczynników wielomianu i wpisywanie ich to wektora arguments
     double* quotient = new double[n - 1];
     for (int i = 0; i < n-1; i++)
     {
@@ -66,6 +68,7 @@ interpolating_function get_interpolating_function(const std::vector<std::pair<do
     }
     delete[] quotient;
 
+    //tworzenie danych wejściowych do funktora
     std::vector<double> xs;
     xs.reserve(n);
     for (auto i = nodes->begin(); i != nodes->end(); i++)
@@ -78,7 +81,7 @@ interpolating_function get_interpolating_function(const std::vector<std::pair<do
 
 
 
-
+//funkcja zwracająca wektor zawierajacy równoodległe węzły
 std::vector<std::pair<double, double>>* get_evenly_distributed_nodes(double begin, double end, int node_quantity, std::function<double(double)> func)
 {
     double interval = (end - begin) / node_quantity;
@@ -92,7 +95,7 @@ std::vector<std::pair<double, double>>* get_evenly_distributed_nodes(double begi
     return vec;
 };
 
-
+//funkcja zwracająca wektor zwierajacy węzły Czebyszewa
 std::vector<std::pair<double, double>>* get_czebyszews_nodes(double begin, double end, int node_quantity, std::function<double(double)> func)
 {
     double bpa = (begin + end) / 2;
@@ -114,13 +117,19 @@ std::vector<std::pair<double, double>>* get_czebyszews_nodes(double begin, doubl
 
 int main()
 {
+    //początek przedziału
     double begin = -1;
+    //koniec przedziału
     double end = 1;
+    //krok z jakim będzie wykonywany wykres
     double step = 0.01;
+    //wypisywanie danych do wykresu dla podanych ilości węzłów
     for (int quantity_of_nodes: {5, 10, 15, 20})
     {
+        //tworzenie wektorów węzłów
         auto evenly_distributed_nodes = get_evenly_distributed_nodes(begin, end, quantity_of_nodes, interpolated_function);
         auto czebyszews_nodes = get_czebyszews_nodes(begin, end, quantity_of_nodes, interpolated_function);
+        //tworzenie funktorów
         auto func_evenly = get_interpolating_function(evenly_distributed_nodes);
         auto func_czebyszew = get_interpolating_function(czebyszews_nodes);
         FILE* data;
