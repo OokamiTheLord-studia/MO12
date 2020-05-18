@@ -6,6 +6,7 @@
 #include <functional>
 #include <array>
 #include <vector>
+#include <string>
 
 using namespace std;
 
@@ -113,13 +114,30 @@ std::vector<std::pair<double, double>>* get_czebyszews_nodes(double begin, doubl
 
 int main()
 {
-    auto evenly_distributed_nodes = get_czebyszews_nodes(-1, 1, 5, interpolated_function);
-    /*for (auto i = evenly_distributed_nodes->begin(); i != evenly_distributed_nodes->end(); i++)
+    double begin = -1;
+    double end = 1;
+    double step = 0.01;
+    for (int quantity_of_nodes: {5, 10, 15, 20})
     {
-        cout << i->first << '\t' << i->second << endl;
-    }*/
-    interpolating_function func1 = get_interpolating_function(evenly_distributed_nodes);
-    cout << func1(-1) << endl;
+        auto evenly_distributed_nodes = get_evenly_distributed_nodes(begin, end, quantity_of_nodes, interpolated_function);
+        auto czebyszews_nodes = get_czebyszews_nodes(begin, end, quantity_of_nodes, interpolated_function);
+        auto func_evenly = get_interpolating_function(evenly_distributed_nodes);
+        auto func_czebyszew = get_interpolating_function(czebyszews_nodes);
+        FILE* data;
+        string filename = "dane/wyniki_" + to_string(quantity_of_nodes) + "_wezlow.txt";
+        
+        fopen_s(&data, filename.c_str(), "w");
+        fprintf_s(data, "X\tFUNKCJA INTERPOLOWANA\tINTERPOLACJA Z WĘZŁAMI RÓWNOODLEGŁYMI\tINTERPOLACJA Z WĘZŁAMI CZEBYSZEWA\n");
+        for (double i = begin; i < end; i+=step)
+        {
+            fprintf_s(data, "%.16lf\t%.16lf\t%.16lf\t%.16lf\n", i, interpolated_function(i), func_evenly(i), func_czebyszew(i));
+        }
+        fprintf_s(data, "%.16lf\t%.16lf\t%.16lf\t%.16lf\n", end, interpolated_function(end), func_evenly(end), func_czebyszew(end));
+        
+        fclose(data);
+        delete evenly_distributed_nodes;
+        delete czebyszews_nodes;
+    }
     
     
 }
